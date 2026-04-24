@@ -6,10 +6,12 @@ const {
 } = require("../shared/auth");
 const { emit, finishRequest, maskDeviceId, startRequest } = require("../shared/logging");
 
-const allData = [
-  { device_id: "E-001", value: 10 },
-  { device_id: "E-002", value: 20 },
-];
+const fs = require("fs");
+const path = require("path");
+
+const dataPath = path.join(__dirname, "../mockData.json");
+const rawData = fs.readFileSync(dataPath);
+const allData = JSON.parse(rawData);
 
 module.exports = async function data(context, req) {
   const request = startRequest(context, req, "/api/data");
