@@ -6,12 +6,59 @@ const {
 } = require("../shared/auth");
 const { emit, finishRequest, maskDeviceId, startRequest } = require("../shared/logging");
 
-const fs = require("fs");
-const path = require("path");
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { DefaultAzureCredential } = require("@azure/identity");
 
-const dataPath = path.join(__dirname, "../mockData.json");
-const rawData = fs.readFileSync(dataPath);
-const allData = JSON.parse(rawData);
+async function readDatasetCsv(blobName) {
+  const accountName = process.env.STORAGE_ACCOUNT_NAME;
+  const containerName = process.env.DATASETS_CONTAINER_NAME;
+
+  if (!accountName || !containerName) {
+    throw new Error("Missing STORAGE_ACCOUNT_NAME or DATASETS_CONTAINER_NAME");
+  }
+
+  const client = new BlobServiceClient(
+    `https://${accountName}.blob.core.windows.net`,
+    new DefaultAzureCredential()
+  );
+
+  const containerClient = client.getContainerClient(containerName);
+  const blobClient = containerClient.getBlobClient(blobName);
+
+  const downloadResponse = await blobClient.download();
+
+  const chunks = [];
+  for await (const chunk of downloadResponse.readableStreamBody) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks).toString("utf-8");
+}
+
+function parseEnergyCsv(csvText) {
+  const lines = csvText
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+
+  const headers = lines[0].split(",").map((header) => header.trim());
+
+  return lines.slice(1).map((line) => {
+    const values = line.split(",").map((value) => value.trim());
+    const row = {};
+
+    headers.forEach((header, index) => {
+      row[header] = values[index];
+    });
+
+    return {
+      device_id: row.device_id,
+      timestamp: row.timestamp,
+      kwh: Number(row.kwh),
+      location: row.location,
+    };
+  });
+}
 
 module.exports = async function data(context, req) {
   const request = startRequest(context, req, "/api/data");
@@ -25,6 +72,9 @@ module.exports = async function data(context, req) {
   try {
     const auth = await authenticate(req);
     const { role, device_id } = auth.claims;
+
+    const csvText = await readDatasetCsv("energy_usage_large.csv");
+    const allData = parseEnergyCsv(csvText);
 
     let visibleData;
 
