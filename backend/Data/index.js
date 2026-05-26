@@ -36,10 +36,7 @@ async function readDatasetCsv(blobName) {
 }
 
 function parseEnergyCsv(csvText) {
-  const lines = csvText
-    .trim()
-    .split(/\r?\n/)
-    .filter(Boolean);
+  const lines = csvText.trim().split(/\r?\n/).filter(Boolean);
 
   const headers = lines[0].split(",").map((header) => header.trim());
 

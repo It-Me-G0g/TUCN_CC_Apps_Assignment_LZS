@@ -19,32 +19,28 @@ function App() {
   const dataRows = dataResponse?.data || [];
 
   const totalKwhByDevice = dataRows.reduce((acc, item) => {
-  const device = item.device_id;
-  const kwh = Number(item.kwh) || 0;
-  acc[device] = (acc[device] || 0) + kwh;
-  return acc;
-}, {});
+    const device = item.device_id;
+    const kwh = Number(item.kwh) || 0;
+    acc[device] = (acc[device] || 0) + kwh;
+    return acc;
+  }, {});
 
-const totalKwhChartData = Object.entries(totalKwhByDevice).map(
-  ([device_id, totalKwh]) => ({
+  const totalKwhChartData = Object.entries(totalKwhByDevice).map(([device_id, totalKwh]) => ({
     device_id,
     totalKwh,
-  })
-);
+  }));
 
-const totalKwhByLocation = dataRows.reduce((acc, item) => {
-  const location = item.location;
-  const kwh = Number(item.kwh) || 0;
-  acc[location] = (acc[location] || 0) + kwh;
-  return acc;
-}, {});
+  const totalKwhByLocation = dataRows.reduce((acc, item) => {
+    const location = item.location;
+    const kwh = Number(item.kwh) || 0;
+    acc[location] = (acc[location] || 0) + kwh;
+    return acc;
+  }, {});
 
-const locationChartData = Object.entries(totalKwhByLocation).map(
-  ([location, totalKwh]) => ({
+  const locationChartData = Object.entries(totalKwhByLocation).map(([location, totalKwh]) => ({
     location,
     totalKwh,
-  })
-);
+  }));
 
   // Call backend when we have an idToken
   useEffect(() => {
@@ -73,9 +69,9 @@ const locationChartData = Object.entries(totalKwhByLocation).map(
     setLoadingData(true);
 
     if (!idToken) {
-     setLoadingData(false);
-     return;
-}
+      setLoadingData(false);
+      return;
+    }
 
     fetch(`${API_BASE}/api/data`, {
       headers: { Authorization: `Bearer ${idToken}` },
@@ -216,96 +212,92 @@ const locationChartData = Object.entries(totalKwhByLocation).map(
                 <p className="muted">Loading data...</p>
               ) : dataResponse ? (
                 <div>
-                 <p className="muted">
-                  Role: {dataResponse.role}
-                  {dataResponse.device_id ? ` | Device ID: ${dataResponse.device_id}` : ""}
-                 </p>
+                  <p className="muted">
+                    Role: {dataResponse.role}
+                    {dataResponse.device_id ? ` | Device ID: ${dataResponse.device_id}` : ""}
+                  </p>
 
-                 {dataResponse.data?.length > 0 ? (
-                <>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Device ID</th>
-                        <th>Timestamp</th>
-                        <th>kWh</th>
-                        <th>Location</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dataResponse.data.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.device_id}</td>
-                          <td>{new Date(item.timestamp).toLocaleString()}</td>
-                          <td>{Number(item.kwh).toFixed(3)}</td>
-                          <td>{item.location}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  {dataResponse.data?.length > 0 ? (
+                    <>
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Device ID</th>
+                            <th>Timestamp</th>
+                            <th>kWh</th>
+                            <th>Location</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dataResponse.data.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.device_id}</td>
+                              <td>{new Date(item.timestamp).toLocaleString()}</td>
+                              <td>{Number(item.kwh).toFixed(3)}</td>
+                              <td>{item.location}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
 
-                  <div className="chart-grid">
-                    <section className="chart-card">
-                      <h3>Total kWh by Device</h3>
-                      <div className="bar-chart">
-                        {totalKwhChartData.map((item) => {
-                          const maxValue = Math.max(
-                            ...totalKwhChartData.map((row) => row.totalKwh)
-                          );
+                      <div className="chart-grid">
+                        <section className="chart-card">
+                          <h3>Total kWh by Device</h3>
+                          <div className="bar-chart">
+                            {totalKwhChartData.map((item) => {
+                              const maxValue = Math.max(
+                                ...totalKwhChartData.map((row) => row.totalKwh)
+                              );
 
-                          const widthPercent = maxValue
-                            ? (item.totalKwh / maxValue) * 100
-                            : 0;
+                              const widthPercent = maxValue ? (item.totalKwh / maxValue) * 100 : 0;
 
-                          return (
-                            <div className="bar-row" key={item.device_id}>
-                              <span className="bar-label">{item.device_id}</span>
-                              <div className="bar-track">
-                                <div
-                                  className="bar-fill"
-                                  style={{ width: `${widthPercent}%` }}
-                                />
-                              </div>
-                              <span className="bar-value">{item.totalKwh.toFixed(2)} kWh</span>
-                            </div>
-                          );
-                        })}
+                              return (
+                                <div className="bar-row" key={item.device_id}>
+                                  <span className="bar-label">{item.device_id}</span>
+                                  <div className="bar-track">
+                                    <div
+                                      className="bar-fill"
+                                      style={{ width: `${widthPercent}%` }}
+                                    />
+                                  </div>
+                                  <span className="bar-value">{item.totalKwh.toFixed(2)} kWh</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </section>
+
+                        <section className="chart-card">
+                          <h3>Total kWh by Location</h3>
+                          <div className="bar-chart">
+                            {locationChartData.map((item) => {
+                              const maxValue = Math.max(
+                                ...locationChartData.map((row) => row.totalKwh)
+                              );
+
+                              const widthPercent = maxValue ? (item.totalKwh / maxValue) * 100 : 0;
+
+                              return (
+                                <div className="bar-row" key={item.location}>
+                                  <span className="bar-label">{item.location}</span>
+                                  <div className="bar-track">
+                                    <div
+                                      className="bar-fill"
+                                      style={{ width: `${widthPercent}%` }}
+                                    />
+                                  </div>
+                                  <span className="bar-value">{item.totalKwh.toFixed(2)} kWh</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </section>
                       </div>
-                    </section>
-
-                    <section className="chart-card">
-                      <h3>Total kWh by Location</h3>
-                      <div className="bar-chart">
-                        {locationChartData.map((item) => {
-                          const maxValue = Math.max(
-                            ...locationChartData.map((row) => row.totalKwh)
-                          );
-
-                          const widthPercent = maxValue
-                            ? (item.totalKwh / maxValue) * 100
-                            : 0;
-
-                          return (
-                            <div className="bar-row" key={item.location}>
-                              <span className="bar-label">{item.location}</span>
-                              <div className="bar-track">
-                                <div
-                                  className="bar-fill"
-                                  style={{ width: `${widthPercent}%` }}
-                                />
-                              </div>
-                              <span className="bar-value">{item.totalKwh.toFixed(2)} kWh</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  </div>
-                </>
-              ) : (
-                <p className="muted">No data available.</p>
-              )}
-              </div>
+                    </>
+                  ) : (
+                    <p className="muted">No data available.</p>
+                  )}
+                </div>
               ) : (
                 <p className="muted">No data loaded yet.</p>
               )}
