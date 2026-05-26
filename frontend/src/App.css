@@ -238,6 +238,68 @@ h2 {
   color: var(--danger);
 }
 
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.chart-card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.bar-label {
+  font-weight: 600;
+}
+
+.bar-track {
+  height: 18px;
+  border-radius: 999px;
+  background: #eee;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #4f46e5;
+}
+
+.bar-value {
+  font-size: 0.9rem;
+  color: #555;
+}
+
 @keyframes fade-slide-in {
   from {
     opacity: 0;
